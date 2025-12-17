@@ -29,7 +29,6 @@ android {
 
     buildFeatures { compose = true }
 
-    // This is what creates sources/javadoc artifacts for the "release" component
     publishing {
         singleVariant("release") {
             withSourcesJar()
@@ -44,7 +43,6 @@ android {
 }
 
 dependencies {
-    // Pick a Compose BOM compatible with your setup; example:
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))
 
     implementation("androidx.compose.ui:ui")
@@ -52,47 +50,49 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
-    // You call rememberCoroutineScope/launch/etc
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("release") {
-            afterEvaluate { from(components["release"]) }
+afterEvaluate{
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                afterEvaluate { from(components["release"]) }
 
-            groupId = "dev.zachmaddox.compose"
-            artifactId = "compose-reorderable-grid"
-            version = project.version.toString()
+                groupId = "dev.zachmaddox.compose"
+                artifactId = "compose-reorderable-grid"
+                version = project.version.toString()
 
-            pom {
-                name.set("compose-reorderable-grid")
-                description.set("A Jetpack Compose LazyVerticalGrid with built-in long-press drag-to-reorder support.")
-                url.set("https://github.com/zmad5306/compose-reorderable-grid")
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("zachmaddox")
-                        name.set("Zach Maddox")
-                        url.set("https://github.com/zmad5306")
-                    }
-                }
-                scm {
+                pom {
+                    name.set("compose-reorderable-grid")
+                    description.set("A Jetpack Compose LazyVerticalGrid with built-in long-press drag-to-reorder support.")
                     url.set("https://github.com/zmad5306/compose-reorderable-grid")
-                    connection.set("scm:git:https://github.com/zmad5306/compose-reorderable-grid.git")
-                    developerConnection.set("scm:git:ssh://git@github.com:zmad5306/compose-reorderable-grid.git")
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("zachmaddox")
+                            name.set("Zach Maddox")
+                            url.set("https://github.com/zmad5306")
+                        }
+                    }
+                    scm {
+                        url.set("https://github.com/zmad5306/compose-reorderable-grid")
+                        connection.set("scm:git:https://github.com/zmad5306/compose-reorderable-grid.git")
+                        developerConnection.set("scm:git:ssh://git@github.com:zmad5306/compose-reorderable-grid.git")
+                    }
                 }
             }
         }
     }
 }
+
 
 signing {
     val signingKey = System.getenv("SIGNING_KEY")
