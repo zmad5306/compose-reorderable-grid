@@ -16,3 +16,5 @@ nmcpAggregation {
 dependencies {
     nmcpAggregation(project(":compose-reorderable-grid"))
 }
+
+evaluationDependsOn(":compose-reorderable-grid")
