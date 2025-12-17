@@ -55,6 +55,14 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
 
+signing {
+    val signingKey = System.getenv("SIGNING_KEY")
+    val signingPassword = System.getenv("SIGNING_PASSWORD")
+    if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    }
+}
+
 afterEvaluate{
     publishing {
         publications {
@@ -91,14 +99,7 @@ afterEvaluate{
             }
         }
     }
-}
-
-
-signing {
-    val signingKey = System.getenv("SIGNING_KEY")
-    val signingPassword = System.getenv("SIGNING_PASSWORD")
-    if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
-        useInMemoryPgpKeys(signingKey, signingPassword)
+    signing {
         sign(publishing.publications["release"])
     }
 }
