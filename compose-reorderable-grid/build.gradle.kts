@@ -1,12 +1,10 @@
-import org.gradle.api.tasks.bundling.Jar
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    id("com.android.library") version "8.13.2"
-    id("org.jetbrains.kotlin.android") version "2.3.0"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("maven-publish")
     id("signing")
+    id("com.gradleup.nmcp")
 }
 
 group = "dev.zachmaddox.compose"
@@ -31,9 +29,11 @@ android {
 
     buildFeatures { compose = true }
 
+    // This is what creates sources/javadoc artifacts for the "release" component
     publishing {
         singleVariant("release") {
             withSourcesJar()
+            withJavadocJar()
         }
     }
 
@@ -41,25 +41,31 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    kotlin {
-        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
-    }
 }
 
-val javadocJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("javadoc")
+dependencies {
+    // Pick a Compose BOM compatible with your setup; example:
+    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
+
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+
+    // You call rememberCoroutineScope/launch/etc
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    debugImplementation("androidx.compose.ui:ui-tooling")
 }
 
 publishing {
     publications {
-        // ✅ Register EARLY so nmcp can see it during configuration
         register<MavenPublication>("release") {
+            afterEvaluate { from(components["release"]) }
+
             groupId = "dev.zachmaddox.compose"
             artifactId = "compose-reorderable-grid"
             version = project.version.toString()
-
-            artifact(javadocJar)
 
             pom {
                 name.set("compose-reorderable-grid")
@@ -85,13 +91,6 @@ publishing {
                 }
             }
         }
-    }
-}
-
-// ✅ Only the Android "from(components["release"])" needs afterEvaluate
-afterEvaluate {
-    publishing.publications.named("release", MavenPublication::class.java).configure {
-        from(components["release"])
     }
 }
 
