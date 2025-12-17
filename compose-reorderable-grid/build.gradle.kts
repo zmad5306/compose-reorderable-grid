@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -8,7 +10,7 @@ plugins {
 }
 
 group = "dev.zachmaddox.compose"
-version = "1.1.0"
+version = "1.0.0"
 
 android {
     namespace = "dev.zachmaddox.compose.reorderable.grid"
@@ -24,11 +26,16 @@ android {
             isMinifyEnabled = false
             consumerProguardFiles("consumer-rules.pro")
         }
-        debug { isMinifyEnabled = false }
+        debug {
+            isMinifyEnabled = false
+        }
     }
 
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+    }
 
+    // Creates sources + javadoc artifacts for the "release" component
     publishing {
         singleVariant("release") {
             withSourcesJar()
@@ -40,34 +47,41 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-}
 
-dependencies {
-    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
-
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-
-    debugImplementation("androidx.compose.ui:ui-tooling")
-}
-
-signing {
-    val signingKey = System.getenv("SIGNING_KEY")
-    val signingPassword = System.getenv("SIGNING_PASSWORD")
-    if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
-        useInMemoryPgpKeys(signingKey, signingPassword)
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 }
 
-afterEvaluate{
+dependencies {
+    implementation(platform("androidx.compose:compose-bom:2025.12.00"))
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.foundation:foundation-layout")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.material3:material3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.12.00"))
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+// Only require creds/signing when publishing tasks are invoked
+fun isCentralPublishRequested(): Boolean =
+    gradle.startParameter.taskNames.any { it.contains("CentralPortal", ignoreCase = true) }
+
+afterEvaluate {
+    // ---- Publication (Android component exists only after evaluation)
     publishing {
         publications {
-            register<MavenPublication>("release") {
-                afterEvaluate { from(components["release"]) }
+            create<MavenPublication>("release") {
+                from(components["release"])
 
                 groupId = "dev.zachmaddox.compose"
                 artifactId = "compose-reorderable-grid"
@@ -99,7 +113,39 @@ afterEvaluate{
             }
         }
     }
+
+    // ---- nmcp (✅ publishingType, NOT publicationType)
+    nmcp {
+        publish("release") {
+            val u = providers.environmentVariable("OSSRH_USERNAME")
+            val p = providers.environmentVariable("OSSRH_PASSWORD")
+
+            if (isCentralPublishRequested()) {
+                if (!u.isPresent) error("Missing OSSRH_USERNAME (Central Portal token username)")
+                if (!p.isPresent) error("Missing OSSRH_PASSWORD (Central Portal token password)")
+            }
+
+            username.set(u.orElse(""))
+            password.set(p.orElse(""))
+
+            // ✅ correct property name
+            publishingType.set("AUTOMATIC")
+        }
+    }
+
+    // ---- signing (only enforce for publish)
     signing {
-        sign(publishing.publications["release"])
+        val key = providers.environmentVariable("SIGNING_KEY")
+        val pass = providers.environmentVariable("SIGNING_PASSWORD")
+
+        if (isCentralPublishRequested()) {
+            if (!key.isPresent) error("Missing SIGNING_KEY (ASCII-armored private key)")
+            if (!pass.isPresent) error("Missing SIGNING_PASSWORD")
+        }
+
+        if (key.isPresent && pass.isPresent) {
+            useInMemoryPgpKeys(key.get(), pass.get())
+            sign(publishing.publications["release"])
+        }
     }
 }
