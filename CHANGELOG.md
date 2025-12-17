@@ -7,8 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2025-12-18
+
+### Upgraded
+
+- Dependencies and plugins
+
+---
+
 ## [1.0.0] - 2025-12-16
+
 ### Added
+
 - Initial stable release of `compose-reorderable-grid`
 - Long-press drag-and-drop reordering for `LazyVerticalGrid`
 - Smooth, animated item displacement during drag
@@ -19,11 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public, reusable API designed for library consumption
 
 ### Stability
+
 - Hardened gesture handling to prevent item merging, twitching, or layout corruption
 - Eliminated layout instability caused by modifier-driven size changes
 - Consistent internal state management using `rememberUpdatedState`
 
 ### Documentation
+
 - Initial README with usage examples and integration guidance
 - Clear API documentation focused on correct Compose usage patterns
 
