@@ -84,29 +84,29 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "dev.zachmaddox.compose"
                 artifactId = "compose-reorderable-grid"
-                version = "0.1.0"
+                version = project.version.toString()
                 artifact(javadocJar)
                 pom {
                     name.set("compose-reorderable-grid")
                     description.set("A Jetpack Compose LazyVerticalGrid with built-in long-press drag-to-reorder support.")
-                    url.set("https://github.com/zachmaddox/compose-reorderable-grid")
+                    url.set("https://github.com/zmad5306/compose-reorderable-grid")
                     licenses {
                         license {
-                            name.set("Apache License 2.0")
-                            url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
                         }
                     }
                     developers {
                         developer {
                             id.set("zachmaddox")
                             name.set("Zach Maddox")
-                            url.set("https://github.com/zachmaddox")
+                            url.set("https://github.com/zmad5306")
                         }
                     }
                     scm {
-                        url.set("https://github.com/zachmaddox/compose-reorderable-grid")
-                        connection.set("scm:git:https://github.com/zachmaddox/compose-reorderable-grid.git")
-                        developerConnection.set("scm:git:ssh://git@github.com:zachmaddox/compose-reorderable-grid.git")
+                        url.set("https://github.com/zmad5306/compose-reorderable-grid")
+                        connection.set("scm:git:https://github.com/zmad5306/compose-reorderable-grid.git")
+                        developerConnection.set("scm:git:ssh://git@github.com:zmad5306/compose-reorderable-grid.git")
                     }
                 }
             }

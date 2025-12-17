@@ -1,3 +1,3 @@
 plugins {
-    // Root is intentionally empty.
+    version = "1.0.0"
 }
