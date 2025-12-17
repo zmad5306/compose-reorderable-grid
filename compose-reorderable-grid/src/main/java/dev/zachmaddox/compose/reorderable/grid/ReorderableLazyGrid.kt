@@ -124,7 +124,7 @@ fun <T> ReorderableLazyVerticalGrid(
     val draggedZ = 10f
 
     fun findIndexByKey(keyValue: Any): Int =
-        currentItems.indexOfFirst { currentKey(it) == keyValue }.coerceAtLeast(0)
+        currentItems.indexOfFirst { currentKey(it) == keyValue }
 
     fun computeToIndex(pointerInRoot: Offset, itemCount: Int): Int {
         // "Put it where my finger is" — interpreted as the GRID CELL (slot) under the finger.
@@ -339,8 +339,14 @@ fun <T> ReorderableLazyVerticalGrid(
                             if (delta != Offset.Zero) change.consume()
                         }
 
-                        val indexNow = state.draggingIndex
+                        val dragKey = state.draggingKey ?: return@detectDragGesturesAfterLongPress
+
+                        // IMPORTANT: Always derive the "from" index from the current list.
+                        // When dragging past the end we may temporarily target `toIndex == items.size`,
+                        // but the dragged item's actual index is still 0..lastIndex.
+                        val indexNow = findIndexByKey(dragKey)
                         if (indexNow < 0) return@detectDragGesturesAfterLongPress
+                        state.draggingIndex = indexNow
 
                         updateDraggedTranslation()
                         startAutoScrollIfNeeded(state.pointerInRoot)
@@ -359,8 +365,11 @@ fun <T> ReorderableLazyVerticalGrid(
 
                         if (adjusted != indexNow) {
                             state.onMove(indexNow, adjusted)
-                            // Keep a stable notion of where the dragged item is after we dispatch a move.
-                            state.draggingIndex = adjusted
+
+                            // After the consumer reorders, re-derive the dragged index by key to avoid off-by-one
+                            // and "stuck overlay" bugs when we previously targeted the end slot.
+                            val newIndex = findIndexByKey(dragKey)
+                            if (newIndex >= 0) state.draggingIndex = newIndex
 
                             val anchorKey = state.scrollAnchorKey
                             val shouldPin = anchorKey != null && state.autoScrollJob == null

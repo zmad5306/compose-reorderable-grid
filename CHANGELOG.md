@@ -7,8 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1] - 2025-12-17
+
+### Fixed
+
+- Fixed an edge-case drag-and-drop bug when the grid height is smaller than the viewport (non-scrollable grids).
+- Resolved an issue where dragging an item beyond the end of a short grid and back upward could cause the dragged item to visually “stick” on top of another item instead of properly displacing it.
+- Corrected internal index tracking to ensure the dragged item’s source index is always derived from the current item list by key, preventing invalid indices (e.g. `items.size`) from being used during reordering.
+- Improved robustness of drag state reconciliation when temporarily targeting the end insertion slot.
+
+---
+
 ## [1.0.0] - 2025-12-16
+
 ### Added
+
 - Initial stable release of `compose-reorderable-grid`
 - Long-press drag-and-drop reordering for `LazyVerticalGrid`
 - Smooth, animated item displacement during drag
@@ -19,11 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public, reusable API designed for library consumption
 
 ### Stability
+
 - Hardened gesture handling to prevent item merging, twitching, or layout corruption
 - Eliminated layout instability caused by modifier-driven size changes
 - Consistent internal state management using `rememberUpdatedState`
 
 ### Documentation
+
 - Initial README with usage examples and integration guidance
 - Clear API documentation focused on correct Compose usage patterns
 

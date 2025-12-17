@@ -9,8 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0d144f5b-7677-4794-b887-83d9f592bb41" name="Changes" comment="Hardening">
+    <list default="true" id="0d144f5b-7677-4794-b887-83d9f592bb41" name="Changes" comment="Bugfix">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compose-reorderable-grid/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/compose-reorderable-grid/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose-reorderable-grid/src/main/java/dev/zachmaddox/compose/reorderable/grid/ReorderableLazyGrid.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose-reorderable-grid/src/main/java/dev/zachmaddox/compose/reorderable/grid/ReorderableLazyGrid.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,13 +50,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="UPDATE_TYPE" value="REBASE" />
   </component>
-  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\Zach\.gradle\wrapper\dists\gradle-8.14.3-bin\cv11ve7ro1n3o1j4so8xd9n66\gradle-8.14.3" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="8.14.3">
-    <option name="jvmArguments">
-      <list>
-        <option value="-Didea.gradle.download.sources.force=true" />
-      </list>
-    </option>
-  </component>
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\Zach\.gradle\wrapper\dists\gradle-8.14.3-bin\cv11ve7ro1n3o1j4so8xd9n66\gradle-8.14.3" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="8.14.3" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 1
@@ -301,6 +298,61 @@
     </task>
     <option name="localTasksCounter" value="17" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="0ab720b8-55a3-499d-a65d-9d5af9246bf0" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="0ab720b8-55a3-499d-a65d-9d5af9246bf0">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="hash">
+                    <value>
+                      <list>
+                        <option value="8f5767863330e81667c59ad37f8401512704c294" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:C:/Users/Zach/Repos/Personal/compose-reorderable-grid/compose-reorderable-grid" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="text">
+                    <value>
+                      <list>
+                        <option value="8f5767863330e81667c59ad37f8401512704c294" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+            </State>
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <ignored-roots>
