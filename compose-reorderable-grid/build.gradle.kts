@@ -7,6 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
     id("maven-publish")
     id("signing")
+    id("org.sonatype.central") version "1.2.0"
 }
 
 group = "dev.zachmaddox.compose"
@@ -111,21 +112,7 @@ afterEvaluate {
                 }
             }
         }
-        repositories {
-            mavenLocal()
-            val ossrhUsername = System.getenv("OSSRH_USERNAME")
-            val ossrhPassword = System.getenv("OSSRH_PASSWORD")
-            if (!ossrhUsername.isNullOrBlank() && !ossrhPassword.isNullOrBlank()) {
-                maven {
-                    name = "OSSRH"
-                    url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                    credentials {
-                        username = ossrhUsername
-                        password = ossrhPassword
-                    }
-                }
-            }
-        }
+        // [CHANGE 2] 'repositories' block deleted. The plugin handles this now.
     }
 
     signing {
@@ -133,7 +120,13 @@ afterEvaluate {
         val signingPassword = System.getenv("SIGNING_PASSWORD")
         if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
             useInMemoryPgpKeys(signingKey, signingPassword)
-            sign(publishing.publications)
+            sign(publishing.publications["release"])
         }
     }
+}
+
+centralPortal {
+    username = System.getenv("OSSRH_USERNAME")
+    password = System.getenv("OSSRH_PASSWORD")
+    publishingType = "AUTOMATIC"
 }
