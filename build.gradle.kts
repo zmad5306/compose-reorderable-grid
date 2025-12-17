@@ -1,5 +1,5 @@
 plugins {
-    // Root is intentionally empty.
+    // Root intentionally empty.
 }
 
 group = "dev.zachmaddox.compose"
