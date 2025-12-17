@@ -1,3 +1,5 @@
 plugins {
-    version = "1.0.0"
+    // Root is intentionally empty.
 }
+
+versoin: "1.0.0"
