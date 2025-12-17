@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
     id("maven-publish")
     id("signing")
-    id("org.sonatype.central") version "1.2.0"
+    id("com.gradleup.nmcp") version "0.0.9"
 }
 
 group = "dev.zachmaddox.compose"
@@ -52,7 +52,6 @@ android {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-
 }
 
 val javadocJar by tasks.registering(Jar::class) {
@@ -61,16 +60,13 @@ val javadocJar by tasks.registering(Jar::class) {
 
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2025.12.00"))
-
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.foundation:foundation-layout")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.material3:material3")
-
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.12.00"))
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
@@ -112,7 +108,14 @@ afterEvaluate {
                 }
             }
         }
-        // [CHANGE 2] 'repositories' block deleted. The plugin handles this now.
+    }
+    
+    nmcp {
+        publish("release") {
+            username.set(System.getenv("OSSRH_USERNAME"))
+            password.set(System.getenv("OSSRH_PASSWORD"))
+            publicationType.set("AUTOMATIC")
+        }
     }
 
     signing {
@@ -123,10 +126,4 @@ afterEvaluate {
             sign(publishing.publications["release"])
         }
     }
-}
-
-centralPortal {
-    username = System.getenv("OSSRH_USERNAME")
-    password = System.getenv("OSSRH_PASSWORD")
-    publishingType = "AUTOMATIC"
 }
