@@ -32,3 +32,58 @@ jobs:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: ./gradlew :compose-reorderable-grid:publish
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Prepare release notes from CHANGELOG and add dependency info
+        run: |
+          mkdir -p build
+
+          awk '
+            /^## \[/ && found { exit }
+            /^---$/ && found { exit }
+            /^## \[/ { found=1 }
+            found { print }
+          ' CHANGELOG.md > build/changelog-latest.md
+
+          VERSION="${{ steps.version.outputs.version }}"
+          MAVEN_CENTRAL_URL="https://central.sonatype.com/artifact/dev.zachmaddox/compose-reorderable-grid/${VERSION}"
+          REPO_URL="https://github.com/zmad5306/compose-reorderable-grid"
+
+          {
+            cat build/changelog-latest.md
+            echo
+            echo "## Dependency coordinates"
+            echo
+            echo "### Gradle (Kotlin DSL)"
+            echo '```kotlin'
+            echo "implementation(\"dev.zachmaddox:compose-reorderable-grid:${VERSION}\")"
+            echo '```'
+            echo
+            echo "### Gradle (Groovy DSL)"
+            echo '```groovy'
+            echo "implementation \"dev.zachmaddox:compose-reorderable-grid:${VERSION}\""
+            echo '```'
+            echo
+            echo "## Links"
+            echo
+            echo "📦 Maven Central: ${MAVEN_CENTRAL_URL}"
+            echo "📘 Documentation: ${REPO_URL}"
+          } > build/release-notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: compose-reorderable-grid ${{ steps.version.outputs.version }}
+          body_path: build/release-notes.md
+          files: |
+            compose-reorderable-grid/build/outputs/aar/*.aar
+            compose-reorderable-grid/build/libs/*-sources.jar
+            compose-reorderable-grid/build/libs/*-javadoc.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
