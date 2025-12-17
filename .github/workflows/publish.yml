@@ -6,6 +6,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -31,7 +34,7 @@ jobs:
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        run: ./gradlew :compose-reorderable-grid:publish
+        run: ./gradlew :compose-reorderable-grid:publishAllPublicationsToCentralPortal
 
       - name: Extract version from tag
         id: version
@@ -61,12 +64,12 @@ jobs:
             echo
             echo "### Gradle (Kotlin DSL)"
             echo '```kotlin'
-            echo "implementation(\"dev.zachmaddox:compose-reorderable-grid:${VERSION}\")"
+            echo "implementation(\"dev.zachmaddox.compose:compose-reorderable-grid:${VERSION}\")"
             echo '```'
             echo
             echo "### Gradle (Groovy DSL)"
             echo '```groovy'
-            echo "implementation \"dev.zachmaddox:compose-reorderable-grid:${VERSION}\""
+            echo "implementation \"dev.zachmaddox.compose:compose-reorderable-grid:${VERSION}\""
             echo '```'
             echo
             echo "## Links"
@@ -83,7 +86,5 @@ jobs:
           body_path: build/release-notes.md
           files: |
             compose-reorderable-grid/build/outputs/aar/*.aar
-            compose-reorderable-grid/build/libs/*-sources.jar
-            compose-reorderable-grid/build/libs/*-javadoc.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
