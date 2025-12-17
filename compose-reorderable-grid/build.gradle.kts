@@ -109,12 +109,12 @@ afterEvaluate {
             }
         }
     }
-    
+
     nmcp {
-        publish("release") {
-            username.set(System.getenv("OSSRH_USERNAME"))
-            password.set(System.getenv("OSSRH_PASSWORD"))
-            publicationType.set("AUTOMATIC")
+        publishAllPublications {
+            username = System.getenv("OSSRH_USERNAME")
+            password = System.getenv("OSSRH_PASSWORD")
+            publicationType = "AUTOMATIC"
         }
     }
 
