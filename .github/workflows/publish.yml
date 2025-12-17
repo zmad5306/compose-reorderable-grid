@@ -28,7 +28,7 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Publish to Maven Central (Central Portal)
+      - name: Publish to Sonatype
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
@@ -54,7 +54,7 @@ jobs:
           ' CHANGELOG.md > build/changelog-latest.md
 
           VERSION="${{ steps.version.outputs.version }}"
-          MAVEN_CENTRAL_URL="https://central.sonatype.com/artifact/dev.zachmaddox.compose/compose-reorderable-grid/${VERSION}"
+          MAVEN_CENTRAL_URL="https://central.sonatype.com/artifact/dev.zachmaddox/compose-reorderable-grid/${VERSION}"
           REPO_URL="https://github.com/zmad5306/compose-reorderable-grid"
 
           {
