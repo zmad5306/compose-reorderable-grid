@@ -9,9 +9,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0d144f5b-7677-4794-b887-83d9f592bb41" name="Changes" comment="Hardening">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+    <list default="true" id="0d144f5b-7677-4794-b887-83d9f592bb41" name="Changes" comment="Bugfix">
+      <change beforePath="$PROJECT_DIR$/compose-reorderable-grid/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/compose-reorderable-grid/build.gradle.kts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -305,7 +304,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765924136183</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Bugfix">
+      <option name="closed" value="true" />
+      <created>1765977829265</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1765977829265</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -318,10 +325,10 @@
     <MESSAGE value="Refactor to library + sample modules, add publishing/CI, and update gitignore" />
     <MESSAGE value="Metadata" />
     <MESSAGE value="Close-ish, scroll don't work" />
-    <MESSAGE value="Bugfix" />
     <MESSAGE value="Its beautiful!" />
     <MESSAGE value="Hardening" />
-    <option name="LAST_COMMIT_MESSAGE" value="Hardening" />
+    <MESSAGE value="Bugfix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bugfix" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
