@@ -7,11 +7,11 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
     id("maven-publish")
     id("signing")
-    id("com.gradleup.nmcp") version "0.0.9"
+    id("com.gradleup.nmcp") version "1.3.0"
 }
 
 group = "dev.zachmaddox.compose"
-version = "1.0.0"
+version = "1.0.1"
 
 android {
     namespace = "dev.zachmaddox.compose.reorderable.grid"
@@ -66,7 +66,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.material3:material3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.12.00"))
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
