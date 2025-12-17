@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "dev.zachmaddox.compose"
-version = "1.0.0"
+version = project.version.toString()
 
 android {
     namespace = "dev.zachmaddox.compose.reorderable.grid"
