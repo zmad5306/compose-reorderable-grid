@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.3] - 2025-12-17
+
+### Fixed
+
+- Fixed an issue where dragging the top-left (first) item downward could cause the reorder target to jump abruptly by multiple rows.
+- Corrected pointer tracking during drag operations to use absolute root coordinates rather than accumulated deltas, preventing layout-driven coordinate shifts when items reorder.
+- Stabilized target index calculation during early drag frames, ensuring smooth, predictable displacement animations even when moving the first visible item.
+
+---
+
 ## [1.0.2] - 2025-12-17
 
 ### Fixed

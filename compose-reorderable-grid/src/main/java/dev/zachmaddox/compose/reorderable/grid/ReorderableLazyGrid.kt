@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.floor
 import kotlin.math.hypot
@@ -159,122 +160,69 @@ fun <T> ReorderableLazyVerticalGrid(
         val col = floor(localX / stepX).toInt().coerceIn(0, cols - 1)
 
         // Account for scroll position so the finger maps to the correct slot off-screen.
+        // We anchor the row calculation to the first visible row, but intentionally DO NOT add
+        // `firstVisibleItemScrollOffset` here. During a drag, that offset can change abruptly
+        // (e.g., when a fling is being stopped), which can cause the target row to jump "a page".
+        // Using only the discrete first visible row produces stable targets and smooth displacement.
         val firstIndex = state.gridState.firstVisibleItemIndex
-        val firstRow = firstIndex / cols
-        val scrollOffsetPx = state.gridState.firstVisibleItemScrollOffset
-        val contentY = localY + (firstRow * stepY) + scrollOffsetPx
-        val row = floor(contentY / stepY).toInt().coerceAtLeast(0)
+        val firstRow = if (firstIndex <= 0) 0 else (firstIndex / cols)
 
-        val slot = row * cols + col
-        return slot.coerceIn(0, itemCount.coerceAtLeast(0))
+        val rowInViewport = floor(localY / stepY).toInt()
+        val row = (rowInViewport + firstRow).coerceAtLeast(0)
+
+        val index = (row * cols + col).coerceIn(0, itemCount)
+        return index
     }
 
-    fun stopAutoScroll() {
-        state.autoScrollJob?.cancel()
-        state.autoScrollJob = null
-    }
-
-    fun startAutoScrollIfNeeded(pointerInRoot: Offset) {
-        val grid = state.gridBoundsInRoot ?: return
-
-        val edge = with(density) { 96.dp.toPx() }
-        val maxPerFrame = with(density) { 52.dp.toPx() }
-        val minPerFrame = with(density) { 6.dp.toPx() }
-
-        val topDist = pointerInRoot.y - grid.top
-        val bottomDist = grid.bottom - pointerInRoot.y
-
-        fun compute(dist: Float, sign: Float): Float {
-            val t = ((edge - dist) / edge).coerceIn(0f, 1f)
-            val eased = t * t
-            val perFrame = minPerFrame + (maxPerFrame - minPerFrame) * eased
-            return sign * perFrame
-        }
-
-        val desired = when {
-            topDist < edge -> compute(topDist, -1f)
-            bottomDist < edge -> compute(bottomDist, 1f)
-            else -> 0f
-        }
-
-        state.autoScrollDeltaPx = desired
-
-        if (desired == 0f) {
-            stopAutoScroll()
-            return
-        }
-        if (state.autoScrollJob?.isActive == true) return
-
-        state.autoScrollJob = state.scope.launch {
-            while (state.draggingKey != null) {
-                androidx.compose.runtime.withFrameNanos { }
-
-                val delta = state.autoScrollDeltaPx
-                if (delta == 0f) break
-
-                val canScroll =
-                    if (delta < 0f) state.gridState.canScrollBackward else state.gridState.canScrollForward
-                if (!canScroll) {
-                    state.autoScrollDeltaPx = 0f
-                    break
-                }
-
-                val consumed = state.gridState.scrollBy(delta)
-                if (kotlin.math.abs(consumed) < 0.5f) {
-                    state.autoScrollDeltaPx = 0f
-                    break
-                }
-            }
-        }
+    DisposableEffect(Unit) {
+        onDispose { state.autoScrollJob?.cancel() }
     }
 
     fun updateDraggedTranslation() {
-        val keyValue = state.draggingKey ?: return
-        val rect = state.itemBoundsInRoot[keyValue] ?: return
-        val topLeft = rect.topLeft
-        state.dragTranslation = state.pointerInRoot - (topLeft + state.grabOffsetInItem)
+        val dragKey = state.draggingKey ?: return
+        val rect = state.itemBoundsInRoot[dragKey] ?: return
+        val desiredTopLeft = state.pointerInRoot - state.grabOffsetInItem
+        state.dragTranslation = desiredTopLeft - rect.topLeft
     }
 
     fun resetDragState() {
+        state.autoScrollJob?.cancel()
+        state.autoScrollJob = null
+        state.autoScrollDeltaPx = 0f
+
         state.draggingKey = null
         state.draggingIndex = -1
-        state.dragTranslation = Offset.Zero
-        state.grabOffsetInItem = Offset.Zero
-        state.pointerInRoot = Offset.Zero
-        state.currentToIndex = -1
-        state.scrollAnchorKey = null
-        state.scrollAnchorOffsetPx = 0
-        state.frozenCellHeightPx = 0f
-        stopAutoScroll()
 
         state.pendingKey = null
         state.pendingPointerStartInRoot = Offset.Zero
         state.pendingGrabOffsetInItem = Offset.Zero
+
+        state.scrollAnchorKey = null
+        state.scrollAnchorOffsetPx = 0
+
+        state.dragTranslation = Offset.Zero
+        state.grabOffsetInItem = Offset.Zero
+        state.pointerInRoot = Offset.Zero
+        state.currentToIndex = -1
+
+        state.frozenCellHeightPx = 0f
     }
 
     fun activatePendingDragIfAny() {
-        val hitKey = state.pendingKey ?: return
+        val keyToDrag = state.pendingKey ?: return
 
-        // Freeze bounds for the duration of the drag.
+        state.draggingKey = keyToDrag
+        state.draggingIndex = findIndexByKey(keyToDrag)
+        state.grabOffsetInItem = state.pendingGrabOffsetInItem
+
+        // Disable any scroll fling that might be in progress before we start auto-scrolling.
         state.scope.launch { state.gridState.stopScroll() }
 
-        state.draggingKey = hitKey
-        state.grabOffsetInItem = state.pendingGrabOffsetInItem
-        state.draggingIndex = findIndexByKey(hitKey)
-        state.currentToIndex = state.draggingIndex
-
-        val firstIndex = state.gridState.firstVisibleItemIndex
-        val firstOffset = state.gridState.firstVisibleItemScrollOffset
-        val firstKey = currentItems.getOrNull(firstIndex)?.let { currentKey(it) }
-
-        if (firstKey == hitKey) {
-            val anchorIndex = (firstIndex + 1).coerceAtMost(currentItems.lastIndex)
-            state.scrollAnchorKey = currentItems.getOrNull(anchorIndex)?.let { currentKey(it) }
-            state.scrollAnchorOffsetPx = firstOffset
-        } else {
-            state.scrollAnchorKey = null
-            state.scrollAnchorOffsetPx = 0
-        }
+        // NOTE: We intentionally do NOT "pin" the scroll position during drag.
+        // Pinning (scrollToItem corrections) can interfere with animateItem() placement animations,
+        // especially when moving the top-left (anchor) item away and back.
+        state.scrollAnchorKey = null
+        state.scrollAnchorOffsetPx = 0
 
         state.pendingKey = null
         state.pendingPointerStartInRoot = Offset.Zero
@@ -283,8 +231,50 @@ fun <T> ReorderableLazyVerticalGrid(
         updateDraggedTranslation()
     }
 
-    DisposableEffect(Unit) {
-        onDispose { state.autoScrollJob?.cancel() }
+    fun startAutoScrollIfNeeded(pointerInRoot: Offset) {
+        val grid = state.gridBoundsInRoot ?: return
+        if (state.draggingKey == null) return
+
+        // Start auto-scrolling when the pointer approaches the top/bottom edges of the grid.
+        val edgePx = with(density) { 56.dp.toPx() }
+        val maxSpeedPx = with(density) { 22.dp.toPx() }
+
+        val distanceToTop = (pointerInRoot.y - grid.top).coerceAtLeast(0f)
+        val distanceToBottom = (grid.bottom - pointerInRoot.y).coerceAtLeast(0f)
+
+        val delta = when {
+            distanceToTop < edgePx -> {
+                val t = (1f - (distanceToTop / edgePx)).coerceIn(0f, 1f)
+                -maxSpeedPx * t
+            }
+            distanceToBottom < edgePx -> {
+                val t = (1f - (distanceToBottom / edgePx)).coerceIn(0f, 1f)
+                maxSpeedPx * t
+            }
+            else -> 0f
+        }
+
+        state.autoScrollDeltaPx = delta
+
+        if (delta == 0f) {
+            state.autoScrollJob?.cancel()
+            state.autoScrollJob = null
+            return
+        }
+
+        if (state.autoScrollJob?.isActive == true) return
+
+        state.autoScrollJob = state.scope.launch {
+            while (true) {
+                val d = state.autoScrollDeltaPx
+                if (d == 0f) break
+
+                state.gridState.scrollBy(d)
+
+                // Allow layout/measure to catch up so hit-testing/placement stays stable.
+                delay(16)
+            }
+        }
     }
 
     Box(
@@ -296,8 +286,6 @@ fun <T> ReorderableLazyVerticalGrid(
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { localDown ->
-                        state.frozenCellHeightPx = state.cellHeightPx
-
                         val grid = state.gridBoundsInRoot ?: return@detectDragGesturesAfterLongPress
                         val downInRoot = grid.topLeft + localDown
 
@@ -307,6 +295,14 @@ fun <T> ReorderableLazyVerticalGrid(
                             ?: return@detectDragGesturesAfterLongPress
 
                         val hitRect = state.itemBoundsInRoot[hitKey] ?: return@detectDragGesturesAfterLongPress
+
+                        // Freeze the cell height based on the actual hit item so we never start with 0px
+                        // (which would make stepY ~ 1px and cause huge target index jumps).
+                        val hitHeightPx = hitRect.height
+                        if (hitHeightPx > 0f) {
+                            state.frozenCellHeightPx = hitHeightPx
+                            if (state.cellHeightPx <= 0f) state.cellHeightPx = hitHeightPx
+                        }
 
                         state.pendingKey = hitKey
                         state.pendingPointerStartInRoot = downInRoot
@@ -319,10 +315,15 @@ fun <T> ReorderableLazyVerticalGrid(
                     onDragCancel = { resetDragState() },
                     onDragEnd = { resetDragState() },
                     onDrag = { change, _ ->
-                        val delta = change.positionChange()
-                        if (delta != Offset.Zero) {
-                            state.pointerInRoot += delta
-                        }
+                        // IMPORTANT: Don't accumulate `positionChange()` deltas.
+                        // When items reorder or the grid scrolls, local coordinates can shift, and
+                        // `positionChange()` may include layout-driven movement. That can make the
+                        // stored pointer jump (especially when dragging the top-left anchor item).
+                        // Instead, re-derive the pointer in root space from the current pointer position.
+                        val grid = state.gridBoundsInRoot ?: return@detectDragGesturesAfterLongPress
+                        val prevPointer = state.pointerInRoot
+                        state.pointerInRoot = grid.topLeft + change.position
+                        val delta = state.pointerInRoot - prevPointer
 
                         if (state.draggingKey == null) {
                             val pending = state.pendingKey
@@ -351,19 +352,38 @@ fun <T> ReorderableLazyVerticalGrid(
                         updateDraggedTranslation()
                         startAutoScrollIfNeeded(state.pointerInRoot)
 
-                        // If we've scrolled away from the top during this drag, disable the "top pin" anchor.
-                        // Otherwise, when auto-scroll stops, the pin logic can snap the list back to the top.
-                        if (state.scrollAnchorKey != null && state.gridState.canScrollBackward) {
-                            state.scrollAnchorKey = null
-                            state.scrollAnchorOffsetPx = 0
-                        }
+                        // (Scroll pinning disabled)
 
                         // Target selection is based on the finger location, not the dragged card center.
-                        val proposed = computeToIndex(state.pointerInRoot, currentItems.size)
-                        if (proposed < 0) return@detectDragGesturesAfterLongPress
+                        val proposedRaw = computeToIndex(state.pointerInRoot, currentItems.size)
+                        if (proposedRaw < 0) return@detectDragGesturesAfterLongPress
+
+                        // Prevent "page jumps" from transient geometry/scroll jitter by limiting how far
+                        // the target index can move per pointer event. This keeps displacement animation
+                        // smooth while still allowing long-distance moves over multiple frames.
+                        val lastTarget = state.currentToIndex.takeIf { it >= 0 } ?: indexNow
+                        val maxStep = currentColumns.coerceAtLeast(1) // 1 row
+                        val proposed = proposedRaw.coerceIn(
+                            (lastTarget - maxStep).coerceAtLeast(0),
+                            (lastTarget + maxStep).coerceAtMost(currentItems.size)
+                        )
 
                         val adjusted =
                             if (proposed > indexNow) proposed.coerceAtMost(currentItems.size) else proposed
+
+                        var anchorIndex = 0
+                        var anchorOffset = 0
+                        var shouldReanchor = false
+                        if (adjusted != indexNow) {
+                            val firstVisibleKey = state.gridState.layoutInfo.visibleItemsInfo
+                                .firstOrNull()
+                                ?.key
+                            if (firstVisibleKey == dragKey) {
+                                anchorIndex = state.gridState.firstVisibleItemIndex
+                                anchorOffset = state.gridState.firstVisibleItemScrollOffset
+                                shouldReanchor = true
+                            }
+                        }
 
                         if (adjusted != state.currentToIndex) {
                             state.currentToIndex = adjusted
@@ -373,24 +393,18 @@ fun <T> ReorderableLazyVerticalGrid(
                         if (adjusted != indexNow) {
                             state.onMove(indexNow, adjusted)
 
+                            if (shouldReanchor) {
+                                state.scope.launch {
+                                    state.gridState.scrollToItem(anchorIndex, anchorOffset)
+                                }
+                            }
+
                             // After the consumer reorders, re-derive the dragged index by key to avoid off-by-one
                             // and "stuck overlay" bugs when we previously targeted the end slot.
                             val newIndex = findIndexByKey(dragKey)
                             if (newIndex >= 0) state.draggingIndex = newIndex
 
-                            val anchorKey = state.scrollAnchorKey
-                            val shouldPin = anchorKey != null &&
-                                    state.autoScrollJob == null &&
-                                    !state.gridState.canScrollBackward
-
-                            if (shouldPin) {
-                                val anchorIndexNow = currentItems.indexOfFirst { currentKey(it) == anchorKey }
-                                if (anchorIndexNow >= 0) {
-                                    state.scope.launch {
-                                        state.gridState.scrollToItem(anchorIndexNow, state.scrollAnchorOffsetPx)
-                                    }
-                                }
-                            }
+                            // (Scroll pinning disabled)
                         }
                     }
                 )
