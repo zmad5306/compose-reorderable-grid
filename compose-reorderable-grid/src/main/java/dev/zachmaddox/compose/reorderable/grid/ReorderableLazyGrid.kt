@@ -351,6 +351,13 @@ fun <T> ReorderableLazyVerticalGrid(
                         updateDraggedTranslation()
                         startAutoScrollIfNeeded(state.pointerInRoot)
 
+                        // If we've scrolled away from the top during this drag, disable the "top pin" anchor.
+                        // Otherwise, when auto-scroll stops, the pin logic can snap the list back to the top.
+                        if (state.scrollAnchorKey != null && state.gridState.canScrollBackward) {
+                            state.scrollAnchorKey = null
+                            state.scrollAnchorOffsetPx = 0
+                        }
+
                         // Target selection is based on the finger location, not the dragged card center.
                         val proposed = computeToIndex(state.pointerInRoot, currentItems.size)
                         if (proposed < 0) return@detectDragGesturesAfterLongPress
@@ -372,7 +379,9 @@ fun <T> ReorderableLazyVerticalGrid(
                             if (newIndex >= 0) state.draggingIndex = newIndex
 
                             val anchorKey = state.scrollAnchorKey
-                            val shouldPin = anchorKey != null && state.autoScrollJob == null
+                            val shouldPin = anchorKey != null &&
+                                    state.autoScrollJob == null &&
+                                    !state.gridState.canScrollBackward
 
                             if (shouldPin) {
                                 val anchorIndexNow = currentItems.indexOfFirst { currentKey(it) == anchorKey }
@@ -500,3 +509,4 @@ private fun DefaultEndSlot(
         )
     }
 }
+

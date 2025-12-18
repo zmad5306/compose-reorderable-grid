@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.2] - 2025-12-17
+
+### Fixed
+
+- Fixed an issue where dragging an item past the fold or to the bottom of a long, scrollable grid and then dragging upward could cause the grid to snap back to the top.
+- Corrected scroll anchor handling to ensure top-pinning logic is disabled once the grid scrolls away from the top during an active drag.
+- Improved auto-scroll and anchor reconciliation to prevent unexpected scroll jumps during long-distance drag operations.
+- Further hardened drag state management for large, scrollable grids.
+
+---
+
 ## [1.0.1] - 2025-12-17
 
 ### Fixed
