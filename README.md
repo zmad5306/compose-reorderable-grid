@@ -1,25 +1,40 @@
 # Compose Reorderable Grid
 
-> **Silky‑smooth drag‑and‑drop grids for Jetpack Compose.**
+[![Maven Central](https://img.shields.io/maven-central/v/dev.zachmaddox.compose/compose-reorderable-grid.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/dev.zachmaddox.compose/compose-reorderable-grid/overview)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3%2B-7F52FF.svg)](https://kotlinlang.org/)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg)](https://developer.android.com/jetpack/compose)
+
+---
+
+> **Silky-smooth drag-and-drop grids for Jetpack Compose.**
 >
 > Built for real apps. Tuned through battle. Polished for publishing.
 
 ---
 
+## 🎥 Demo
+
+[![Compose Reorderable Grid demo](demo/overview.gif)](demo/overview.mp4)
+
+> Click the GIF to watch the full demo video.
+
+---
+
 ## ✨ What This Is
 
-`compose-reorderable-grid` is a **high‑performance, long‑press drag‑and‑drop grid** for Jetpack Compose.
+`compose-reorderable-grid` is a **high-performance, long-press drag-and-drop grid** for Jetpack Compose.
 
 It solves the hard parts Compose doesn’t give you out of the box:
 
 * Natural card displacement while dragging
 * Predictable drop targets
-* Smooth auto‑scroll while holding an item
-* Stable gestures that *don’t* cancel mid‑drag
+* Smooth auto-scroll while holding an item
+* Stable gestures that *don’t* cancel mid-drag
 * Works with large lists and real scrolling containers
 
 This isn’t a demo toy.
-It’s extracted from a production app, stress‑tested on physical devices, and cleaned up so future‑you won’t hate present‑you.
+It’s extracted from a production app, stress-tested on physical devices, and cleaned up so future-you won’t hate present-you.
 
 ---
 
@@ -29,18 +44,18 @@ This library is opinionated — intentionally.
 
 **Principles:**
 
-* **Long‑press starts the drag** (muscle memory matters)
+* **Long-press starts the drag** (muscle memory matters)
 * **Other items move out of the way immediately** (no overlap jank)
-* **Scrolling while dragging must feel fast** (no edge‑hugging required)
-* **No pointerInput restarts mid‑gesture** (ever)
+* **Scrolling while dragging must feel fast** (no edge-hugging required)
+* **No pointerInput restarts mid-gesture** (ever)
 * **Layout math is explicit and debuggable**
 
 Under the hood, it uses:
 
 * `pointerInput(Unit)` + `rememberUpdatedState` to keep gestures alive
 * Frozen item heights to prevent grid reflow chaos
-* Padding‑aware, center‑based hit testing for predictable drops
-* Non‑state layout caches to avoid recomposition storms
+* Padding-aware, center-based hit testing for predictable drops
+* Non-state layout caches to avoid recomposition storms
 
 Every line exists because something broke without it.
 
@@ -48,7 +63,7 @@ Every line exists because something broke without it.
 
 ## 🖐️ Interaction Model
 
-* **Long‑press** a card to lift it
+* **Long-press** a card to lift it
 * Drag freely across rows and columns
 * Scroll the grid *while holding the card*
 * Release to drop — indices update cleanly
@@ -57,7 +72,7 @@ No flicker. No snapping back. No “why did it drop there?” moments.
 
 ---
 
-## 🚀 Usage (High‑Level)
+## 🚀 Usage (High-Level)
 
 ```kotlin
 ReorderableLazyVerticalGrid(
@@ -94,7 +109,7 @@ It does **not** give you a reorderable grid that:
 * survives recomposition
 * behaves on real devices
 
-This repo exists because shipping apps exposed edge cases that blog‑post examples never hit.
+This repo exists because shipping apps exposed edge cases that blog-post examples never hit.
 
 The code you see here is what was left *after* removing everything that caused twitching, merging, snapping, or gesture cancellation.
 
@@ -115,10 +130,9 @@ That’s how you know it’s ready.
 ## 📦 Status
 
 * ✅ Actively used
-* ✅ Safe to vendor
-* 🚧 Publishing to Maven Central planned
+* ✅ Available on Maven Central
 
-API is small on purpose. Expect additive changes only.
+Expect additive changes only.
 
 ---
 
@@ -129,7 +143,7 @@ Created by **Zach Maddox**
 Built while shipping a real product.
 Refined by breaking it repeatedly.
 
-If this saves you a weekend — or prevents one late‑night rage‑refactor — it’s done its job.
+If this saves you a weekend — or prevents one late-night rage-refactor — it’s done its job.
 
 ---
 
