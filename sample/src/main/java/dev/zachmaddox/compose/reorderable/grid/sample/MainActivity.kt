@@ -53,7 +53,7 @@ private data class DemoCard(
 @Composable
 private fun ReorderableGridDemo() {
     val initial = remember {
-        List(24) { i ->
+        List(48) { i ->
             DemoCard(
                 id = UUID.randomUUID().toString(),
                 label = "Card ${i + 1}",
