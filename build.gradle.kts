@@ -3,4 +3,4 @@ plugins {
 }
 
 group = "dev.zachmaddox.compose"
-version = "1.0.3"
+version = "1.0.5"
