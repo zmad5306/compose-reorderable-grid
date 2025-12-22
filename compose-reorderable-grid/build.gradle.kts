@@ -11,14 +11,14 @@ plugins {
 }
 
 group = "dev.zachmaddox.compose"
-version = "1.0.3"
+version = "1.0.4"
 
 android {
     namespace = "dev.zachmaddox.compose.reorderable.grid"
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 26
+        minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
